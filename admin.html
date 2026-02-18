@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Où est Bibi?</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal show">
+        <div class="modal-content">
+            <h2>🔐 Administration</h2>
+            <p>Entrez le mot de passe administrateur :</p>
+            <input type="password" id="passwordInput" placeholder="Mot de passe">
+            <button id="loginBtn" class="btn-primary">Se connecter</button>
+            <a href="index.html" class="btn-secondary">Retour au jeu</a>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" style="display: none;">
+        <!-- Header -->
+        <header>
+            <div class="container">
+                <h1>🔍 Administration - Où est Bibi?</h1>
+                <div class="header-actions">
+                    <a href="index.html" class="btn-secondary">Voir le jeu</a>
+                    <button id="logoutBtn" class="btn-danger">Déconnexion</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Add Challenge Section -->
+            <section class="admin-section">
+                <h2>➕ Ajouter un nouveau défi</h2>
+                <form id="addChallengeForm" class="challenge-form">
+                    <div class="form-group">
+                        <label for="challengeDate">Date du défi:</label>
+                        <input type="date" id="challengeDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="imageUrl">URL de l'image:</label>
+                        <input type="url" id="imageUrl" placeholder="https://exemple.com/image.jpg" required>
+                        <small>Entrez l'URL d'une image hébergée en ligne</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Aperçu de l'image:</label>
+                        <div id="imagePreviewContainer" class="image-preview-container">
+                            <img id="imagePreview" src="" alt="Aperçu" style="display: none;">
+                            <p id="noImageText">Aucune image chargée</p>
+                        </div>
+                        <button type="button" id="loadImageBtn" class="btn-secondary">Charger l'image</button>
+                    </div>
+                    
+                    <div class="form-group" id="bibiPositionGroup" style="display: none;">
+                        <label>Position de Bibi (cliquez sur l'image):</label>
+                        <div id="clickableImageContainer" class="clickable-image-container">
+                            <img id="clickableImage" src="" alt="Cliquez pour positionner Bibi">
+                            <div id="bibiMarker" class="bibi-marker"></div>
+                        </div>
+                        <div class="coordinates">
+                            <span>X: <strong id="bibiX">-</strong>%</span>
+                            <span>Y: <strong id="bibiY">-</strong>%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="activeCheckbox" checked>
+                            Défi actif
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary btn-large">
+                        <i class="fas fa-plus"></i> Ajouter le défi
+                    </button>
+                </form>
+            </section>
+
+            <!-- Challenges List -->
+            <section class="admin-section">
+                <h2>📋 Défis programmés</h2>
+                <div id="challengesList" class="challenges-list">
+                    <p class="loading-text">Chargement...</p>
+                </div>
+            </section>
+
+            <!-- Statistics -->
+            <section class="admin-section">
+                <h2>📊 Statistiques</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-check"></i>
+                        <div class="stat-value" id="totalChallenges">0</div>
+                        <div class="stat-label">Défis créés</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-value" id="totalPlayers">0</div>
+                        <div class="stat-label">Joueurs uniques</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-trophy"></i>
+                        <div class="stat-value" id="totalScores">0</div>
+                        <div class="stat-label">Parties jouées</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

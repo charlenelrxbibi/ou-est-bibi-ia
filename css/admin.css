@@ -1,0 +1,455 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+    padding-bottom: 50px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header */
+header {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 20px 0;
+    margin-bottom: 30px;
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+header h1 {
+    color: #667eea;
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Buttons */
+.btn-primary, .btn-secondary, .btn-danger {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1em;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background: #e0e0e0;
+}
+
+.btn-danger {
+    background: #ff6b6b;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #ff5252;
+}
+
+.btn-large {
+    padding: 15px 30px;
+    font-size: 1.1em;
+    width: 100%;
+}
+
+.btn-small {
+    padding: 8px 15px;
+    font-size: 0.9em;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    animation: fadeIn 0.3s;
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    animation: slideIn 0.3s;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-content h2 {
+    color: #667eea;
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+.modal-content p {
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1em;
+    margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.modal-content input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Admin Sections */
+.admin-section {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.admin-section h2 {
+    color: #667eea;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    border-bottom: 3px solid #667eea;
+    padding-bottom: 10px;
+}
+
+/* Form */
+.challenge-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.form-group input[type="text"],
+.form-group input[type="url"],
+.form-group input[type="date"],
+.form-group input[type="number"] {
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1em;
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-group small {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.form-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.form-group label:has(input[type="checkbox"]) {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Image Preview */
+.image-preview-container {
+    border: 2px dashed #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    background: #f9f9f9;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#imagePreview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 10px;
+}
+
+#noImageText {
+    color: #999;
+    font-style: italic;
+}
+
+/* Clickable Image */
+.clickable-image-container {
+    position: relative;
+    border: 3px solid #667eea;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: crosshair;
+    background: #f0f0f0;
+    max-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#clickableImage {
+    max-width: 100%;
+    max-height: 500px;
+    display: block;
+}
+
+.bibi-marker {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background: rgba(255, 107, 107, 0.7);
+    border: 3px solid #ff6b6b;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    display: none;
+    animation: markerPulse 1s infinite;
+}
+
+@keyframes markerPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.2); }
+}
+
+.coordinates {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    margin-top: 15px;
+    font-size: 1.1em;
+    color: #666;
+}
+
+.coordinates strong {
+    color: #667eea;
+    font-size: 1.2em;
+}
+
+/* Challenges List */
+.challenges-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.challenge-card {
+    display: grid;
+    grid-template-columns: 150px 1fr auto;
+    gap: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    border-radius: 15px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    align-items: center;
+}
+
+.challenge-thumbnail {
+    width: 150px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.challenge-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.challenge-date {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #764ba2;
+}
+
+.challenge-status {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.challenge-status.active {
+    background: #51cf66;
+    color: white;
+}
+
+.challenge-status.inactive {
+    background: #ff6b6b;
+    color: white;
+}
+
+.challenge-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.loading-text {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 40px;
+}
+
+/* Statistics */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card i {
+    font-size: 3em;
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+.stat-value {
+    font-size: 3em;
+    font-weight: 700;
+    color: #764ba2;
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    font-size: 1.1em;
+    color: #333;
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.3em;
+    }
+    
+    .challenge-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .challenge-thumbnail {
+        width: 100%;
+        height: 200px;
+    }
+    
+    .challenge-info {
+        align-items: center;
+    }
+    
+    .challenge-actions {
+        flex-direction: row;
+        justify-content: center;
+    }
+    
+    .admin-section {
+        padding: 20px;
+    }
+    
+    .modal-content {
+        padding: 30px 20px;
+    }
+}

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Où est Bibi? 🔍</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Modal de pseudo -->
+    <div id="nicknameModal" class="modal">
+        <div class="modal-content">
+            <h2>🎮 Bienvenue sur Où est Bibi?</h2>
+            <p>Entrez votre pseudo pour commencer à jouer :</p>
+            <input type="text" id="nicknameInput" placeholder="Votre pseudo" maxlength="20">
+            <button id="startGameBtn" class="btn-primary">Commencer</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="logo-container">
+    <img src="images/logo.png" alt="Logo Où est Bibi" class="logo">
+    <h1>Où est Bibi ?</h1>
+</div>
+            <div class="header-info">
+                <span class="player-name">Joueur: <strong id="displayNickname"></strong></span>
+                <button id="changeNicknameBtn" class="btn-secondary">Changer de pseudo</button>
+                <a href="admin.html" class="btn-admin">Admin</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container main-container">
+        
+        <!-- Timer et Instructions -->
+        <div class="game-info">
+            <div class="timer-section">
+                <i class="fas fa-stopwatch"></i>
+                <span id="timer">00:00</span>
+            </div>
+            <div class="instructions">
+                <p><strong>Instructions:</strong> Trouvez Bibi dans l'image! Utilisez les boutons de zoom ou le pinch sur mobile.</p>
+            </div>
+        </div>
+
+        <!-- Publicité 1 -->
+        <div class="ad-space ad-horizontal">
+            <p>📢 Espace publicitaire</p>
+        </div>
+
+        <!-- Game Section -->
+        <div class="game-section">
+            <div class="game-container">
+                <div class="zoom-controls">
+                    <button id="zoomInBtn" class="btn-zoom"><i class="fas fa-plus"></i></button>
+                    <button id="zoomResetBtn" class="btn-zoom"><i class="fas fa-compress"></i></button>
+                    <button id="zoomOutBtn" class="btn-zoom"><i class="fas fa-minus"></i></button>
+                </div>
+                
+                <div id="imageContainer" class="image-container">
+                    <img id="challengeImage" src="" alt="Trouvez Bibi!">
+                    <div id="clickMarker" class="click-marker"></div>
+                </div>
+
+                <div id="loadingMessage" class="loading-message">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Chargement du défi du jour...</p>
+                </div>
+
+                <div id="noChallengeMessage" class="no-challenge-message" style="display: none;">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>Aucun défi disponible pour aujourd'hui. Revenez demain!</p>
+                </div>
+
+                <div id="alreadyPlayedMessage" class="already-played-message" style="display: none;">
+                    <i class="fas fa-check-circle"></i>
+                    <p>Vous avez déjà trouvé Bibi aujourd'hui!</p>
+                    <p>Votre classement: <strong id="yourRank"></strong></p>
+                    <p>Revenez demain pour un nouveau défi!</p>
+                </div>
+            </div>
+
+            <!-- Sidebar avec Classement et Pub -->
+            <aside class="sidebar">
+  <div class="sidebar-row">
+    <!-- Pub à gauche -->
+    <div class="ad-space ad-vertical">
+      <p>📢 Espace publicitaire</p>
+    </div>
+
+    <!-- Classement à droite -->
+    <div class="leaderboard">
+      <h3>🏆 Top 5 du Jour</h3>
+      <div id="leaderboardList" class="leaderboard-list">
+        <p class="loading-text">Chargement...</p>
+      </div>
+    </div>
+  </div>
+</aside>
+
+        </div>
+    </div>
+
+    <!-- Modal de victoire -->
+    <div id="victoryModal" class="modal">
+        <div class="modal-content victory-content">
+            <h2>🎉 Félicitations!</h2>
+            <div class="victory-animation">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <p class="victory-message">Vous avez trouvé Bibi!</p>
+            <p class="victory-time">Temps: <strong id="victoryTime"></strong></p>
+            <p class="victory-rank">Vous êtes <strong id="victoryRank"></strong>!</p>
+            <button id="closeVictoryBtn" class="btn-primary">Voir le classement</button>
+            <button id="shareScoreBtn" class="btn-secondary">Partager</button>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Où est Bibi? - Un nouveau défi chaque jour!</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
