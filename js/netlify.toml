@@ -5,3 +5,4 @@
   from = "/tables/*"
   to = "/.netlify/functions/tables/:splat"
   status = 200
+
