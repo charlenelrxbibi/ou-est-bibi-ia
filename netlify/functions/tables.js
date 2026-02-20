@@ -4,3 +4,4 @@ exports.handler = async () => {
     body: JSON.stringify({ message: "API fonctionne !" }),
   };
 };
+
