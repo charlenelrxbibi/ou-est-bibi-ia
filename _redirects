@@ -1,1 +1,1 @@
-/tables/*  /.netlify/functions/tables  200
+/tables/*  /.netlify/functions/tables/:splat 200
