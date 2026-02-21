@@ -6,21 +6,10 @@ const supabase = createClient(
 );
 
 exports.handler = async () => {
-  try {
-    const { data, error } = await supabase
-      .from("challenges")
-      .select("*");
-
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data, error }),
-    };
-  } catch (e) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: e.message }),
-    };
-  }
+  const { data, error } = await supabase.from("challenges").select("*");
+  return {
+    statusCode: 200,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data, error }),
+  };
 };
-

@@ -1,8 +1,0 @@
-[build]
-  functions = "functions"
-
-[[redirects]]
-  from = "/tables/*"
-  to = "/.netlify/functions/tables/:splat"
-  status = 200
-  
