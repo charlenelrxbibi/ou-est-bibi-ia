@@ -28,7 +28,8 @@ const alreadyPlayedMessage = document.getElementById('alreadyPlayedMessage');
 const yourRank = document.getElementById('yourRank');
 const victoryModal = document.getElementById('victoryModal');
 const victoryTime = document.getElementById('victoryTime');
-const victoryRank = document.getElementById('victoryRank');
+const safeRank = Number.isFinite(rank) ? rank : 0;
+document.getElementById("victoryRank").textContent = safeRank;
 const closeVictoryBtn = document.getElementById('closeVictoryBtn');
 const zoomInBtn = document.getElementById('zoomInBtn');
 const zoomOutBtn = document.getElementById('zoomOutBtn');
@@ -340,25 +341,24 @@ async function foundBibi() {
 }
 
 async function calculateRank(challengeId, timeSeconds) {
-    try {
-        const response = await fetch(`${API_BASE}/scores?limit=1000`);
-        const result = await response.json();
-        
-        // Filtrer les scores pour ce défi et trier
-        const challengeScores = result.data
-            .filter(score => score.challenge_id === challengeId)
-            .sort((a, b) => a.time_seconds - b.time_seconds);
-        
-        // Trouver le rang
-        const rank = challengeScores.findIndex(score => 
-            score.player_name === playerNickname && score.time_seconds === timeSeconds
-        ) + 1;
-        
-        return rank + getRankSuffix(rank);
-    } catch (error) {
-        console.error('Erreur lors du calcul du rang:', error);
-        return 'N/A';
-    }
+  try {
+    const response = await fetch(`${API_BASE}/scores?limit=1000`);
+    const result = await response.json();
+
+    const cid = Number(challengeId);
+    const t = Number(timeSeconds);
+
+    const scores = (result.data ?? [])
+      .filter(s => Number(s.challenge_id) === cid)
+      .sort((a, b) => Number(a.time_seconds) - Number(b.time_seconds));
+
+    const rank = scores.filter(s => Number(s.time_seconds) < t).length + 1;
+
+    return rank; // <-- un nombre (ex: 3)
+  } catch (error) {
+    console.error("Erreur lors du calcul du rang:", error);
+    return null;
+  }
 }
 
 function getRankSuffix(rank) {
@@ -372,7 +372,10 @@ function showVictory(timeSeconds, rank) {
     const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
     
     victoryTime.textContent = timeStr;
-    victoryRank.textContent = rank;
+
+    const rankText = Number.isFinite(rank) ? `${rank}${getRankSuffix(rank)}` : "—";
+    victoryRank.textContent = rankText;
+    
     victoryModal.classList.add('show');
     shareScoreBtn.onclick = () => shareScore(timeSeconds);
     if (typeof confetti === "function") {
