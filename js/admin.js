@@ -1,7 +1,10 @@
 // Configuration
 const ADMIN_PASSWORD = 'Bibi2026@'; // Mot de passe par défaut
 const API_BASE = 'tables';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabaseClient.createClient(
+    windows.SUPABASE_URL, 
+    windows.SUPABASE_ANON_KEY
+);
 
 // Variables globales
 let isAuthenticated = false;
