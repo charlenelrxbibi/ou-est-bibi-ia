@@ -160,8 +160,7 @@ alert("Impossible de charger l'image. Vérifie l'URL.");
 imagePreview.style.display = 'none';
 noImageText.style.display = 'block';
 };
-}
-    
+
     // Vérifier que c'est une URL valide
     try {
         new URL(url);
