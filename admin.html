@@ -48,6 +48,8 @@
                         <input type="url" id="imageUrl" placeholder="https://exemple.com/image.jpg" required>
                         <small>Entrez l'URL d'une image hébergée en ligne</small>
                     </div>
+                    <label for="imageFile">Ou uploader depuis ton ordinateur</label>
+                    <input type="file" id="imageFile" accept="image/*" />
                     
                     <div class="form-group">
                         <label>Aperçu de l'image:</label>
@@ -115,6 +117,8 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
     <script src="js/admin.js"></script>
 </body>
 </html>

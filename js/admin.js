@@ -1,6 +1,7 @@
 // Configuration
 const ADMIN_PASSWORD = 'Bibi2026@'; // Mot de passe par défaut
 const API_BASE = 'tables';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Variables globales
 let isAuthenticated = false;
@@ -27,6 +28,7 @@ const bibiMarker = document.getElementById('bibiMarker');
 const bibiX = document.getElementById('bibiX');
 const bibiY = document.getElementById('bibiY');
 const activeCheckbox = document.getElementById('activeCheckbox');
+const imageFile = document.getElementById('imageFile');
 
 // Lists
 const challengesList = document.getElementById('challengesList');
@@ -105,11 +107,60 @@ function setDefaultDate() {
 
 // Chargement de l'image
 function loadImage() {
-    const url = imageUrl.value.trim();
-    if (!url) {
-        alert('Veuillez entrer une URL d\'image');
-        return;
-    }
+const file = imageFile?.files?.[0];
+
+// 1) Si on a choisi un fichier => preview local
+if (file) {
+const previewUrl = URL.createObjectURL(file);
+imagePreview.src = previewUrl;
+clickableImage.src = previewUrl;
+
+imagePreview.onload = () => {
+noImageText.style.display = 'none';
+imagePreview.style.display = 'block';
+bibiPositionGroup.style.display = 'block';
+bibiPosition = { x: null, y: null };
+bibiMarker.style.display = 'none';
+bibiX.textContent = '-';
+bibiY.textContent = '-';
+};
+
+imagePreview.onerror = () => {
+alert("Impossible d'afficher l'image locale.");
+imagePreview.style.display = 'none';
+noImageText.style.display = 'block';
+};
+return;
+}
+
+// 2) Sinon => on utilise l'URL comme avant
+const url = imageUrl.value.trim();
+if (!url) {
+alert("Mets une URL OU choisis un fichier.");
+return;
+}
+
+try { new URL(url); } catch (e) { alert("URL invalide"); return; }
+
+imagePreview.src = url;
+clickableImage.src = url;
+
+imagePreview.onload = () => {
+noImageText.style.display = 'none';
+imagePreview.style.display = 'block';
+bibiPositionGroup.style.display = 'block';
+bibiPosition = { x: null, y: null };
+bibiMarker.style.display = 'none';
+bibiX.textContent = '-';
+bibiY.textContent = '-';
+};
+
+imagePreview.onerror = () => {
+alert("Impossible de charger l'image. Vérifie l'URL.");
+imagePreview.style.display = 'none';
+noImageText.style.display = 'block';
+};
+}
     
     // Vérifier que c'est une URL valide
     try {
@@ -181,13 +232,25 @@ async function handleAddChallenge(e) {
     
     try {
         // Créer le défi
-        const challengeData = {
-            date: challengeDate.value,
-            image_url: imageUrl.value.trim(),
-            bibi_x: bibiPosition.x,
-            bibi_y: bibiPosition.y,
-            active: activeCheckbox.checked
-        };
+       async function uploadToSupabaseStorage(file) {
+const ext = file.name.split('.').pop();
+const fileName = `${Date.now()}-${Math.random().toString(16).slice(2)}.${ext}`;
+const filePath = `daily/${fileName}`;
+
+const { error: uploadError } = await supabase
+.storage
+.from('challenge-images')
+.upload(filePath, file, { upsert: false });
+
+if (uploadError) throw uploadError;
+
+const { data } = supabase
+.storage
+.from('challenge-images')
+.getPublicUrl(filePath);
+
+return data.publicUrl;
+}
         
         const response = await fetch(`${API_BASE}/challenges`, {
             method: 'POST',
