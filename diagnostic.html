@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic - Où est Bibi?</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #00ff00;
+        }
+        h1 {
+            color: #ffff00;
+            text-align: center;
+        }
+        .section {
+            margin: 20px 0;
+            border: 1px solid #00ff00;
+            padding: 15px;
+            background: #1a1a1a;
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff0000; }
+        .warning { color: #ffff00; }
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #ffff00;
+        }
+        button.danger {
+            background: #ff0000;
+            color: white;
+        }
+        button.danger:hover {
+            background: #ff4444;
+        }
+        pre {
+            background: #000;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 DIAGNOSTIC DU JEU</h1>
+        
+        <div class="section">
+            <h2>État localStorage</h2>
+            <div id="storageStatus"></div>
+        </div>
+
+        <div class="section">
+            <h2>Défis disponibles</h2>
+            <div id="challenges"></div>
+        </div>
+
+        <div class="section">
+            <h2>Scores/Résultats</h2>
+            <div id="scores"></div>
+        </div>
+
+        <div class="section">
+            <h2>Actions de réparation</h2>
+            <button onclick="fullReset();" class="danger">🔴 RÉINITIALISER COMPLÈTEMENT</button>
+            <button onclick="addTodayChallenge();">✅ Ajouter défi pour AUJOURD'HUI</button>
+            <button onclick="goToGame();">🎮 Aller au jeu</button>
+        </div>
+
+        <div class="section" id="logs">
+            <h2>Logs</h2>
+            <pre id="logOutput"></pre>
+        </div>
+    </div>
+
+    <script>
+        function log(msg, type = 'info') {
+            const logDiv = document.getElementById('logOutput');
+            const color = type === 'error' ? 'color: #ff0000;' : type === 'success' ? 'color: #00ff00;' : 'color: #ffff00;';
+            logDiv.innerHTML += `<span style="${color}">${msg}</span>\n`;
+        }
+
+        function renderStatus() {
+            const status = document.getElementById('storageStatus');
+            const allData = {};
+            let totalSize = 0;
+
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    allData[key] = localStorage.getItem(key);
+                    totalSize += localStorage.getItem(key).length;
+                }
+            }
+
+            let html = `<div class="success">✅ localStorage actif</div>`;
+            html += `<div>📦 Taille totale: ${totalSize} bytes</div>`;
+            html += `<div>🔑 Clés: ${Object.keys(allData).length}</div>`;
+            html += `<pre>${JSON.stringify(allData, null, 2)}</pre>`;
+            status.innerHTML = html;
+        }
+
+        function renderChallenges() {
+            const div = document.getElementById('challenges');
+            const challenges = JSON.parse(localStorage.getItem('challenges') || '[]');
+            
+            if (challenges.length === 0) {
+                div.innerHTML = '<div class="error">❌ AUCUN DÉFI TROUVÉ!</div>';
+                return;
+            }
+
+            let html = `<div class="success">✅ ${challenges.length} défi(s) trouvé(s)</div>`;
+            challenges.forEach((c, i) => {
+                const today = new Date().toISOString().split('T')[0];
+                const isToday = c.date === today ? '✅ AUJOURD\'HUI' : '';
+                html += `<div style="margin-top: 10px; padding: 10px; border-left: 3px solid #00ff00;">`;
+                html += `Défi #${i}: ${c.date} ${isToday}<br/>`;
+                html += `Image: ${c.image_url}<br/>`;
+                html += `Bibi: (${c.bibi_x}, ${c.bibi_y})<br/>`;
+                html += `Actif: ${c.active ? '✅' : '❌'}</div>`;
+            });
+            div.innerHTML = html;
+        }
+
+        function renderScores() {
+            const div = document.getElementById('scores');
+            const scores = JSON.parse(localStorage.getItem('scores') || '[]');
+            
+            if (scores.length === 0) {
+                div.innerHTML = '<div>ℹ️ Aucun score enregistré</div>';
+                return;
+            }
+
+            let html = `<div class="success">✅ ${scores.length} score(s)</div>`;
+            scores.forEach((s, i) => {
+                html += `<div style="margin-top: 10px; padding: 10px; border-left: 3px solid #00ff00;">`;
+                html += `${s.playerName || 'Anonyme'}: ${s.timeSeconds}s - ${s.date}</div>`;
+            });
+            div.innerHTML = html;
+        }
+
+        function addTodayChallenge() {
+            const challenges = JSON.parse(localStorage.getItem('challenges') || '[]');
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Vérifie si défi d'aujourd'hui existe déjà
+            if (challenges.find(c => c.date === today)) {
+                log('✅ Défi pour ' + today + ' existe déjà!', 'success');
+                renderChallenges();
+                return;
+            }
+
+            const newChallenge = {
+                id: Date.now().toString(),
+                date: today,
+                image_url: 'images/27_fevrier.png',
+                bibi_x: 50,
+                bibi_y: 50,
+                active: true
+            };
+
+            challenges.push(newChallenge);
+            localStorage.setItem('challenges', JSON.stringify(challenges));
+            
+            log(`✅ Défi ajouté pour ${today}`, 'success');
+            renderChallenges();
+        }
+
+        function fullReset() {
+            if (confirm('⚠️ Cela va supprimer TOUS les données de jeu. Continuer?')) {
+                localStorage.clear();
+                log('🔴 localStorage vidé', 'error');
+                
+                // Recréer défis par défaut
+                const defaultChallenge = {
+                    id: Date.now().toString(),
+                    date: new Date().toISOString().split('T')[0],
+                    image_url: 'images/27_fevrier.png',
+                    bibi_x: 50,
+                    bibi_y: 50,
+                    active: true
+                };
+                localStorage.setItem('challenges', JSON.stringify([defaultChallenge]));
+                log('✅ Défis par défaut restaurés', 'success');
+                
+                renderStatus();
+                renderChallenges();
+                renderScores();
+            }
+        }
+
+        function goToGame() {
+            window.location.href = 'index.html';
+        }
+
+        // Initialisation
+        renderStatus();
+        renderChallenges();
+        renderScores();
+        log('🔍 Diagnostic prêt', 'success');
+    </script>
+</body>
+</html>

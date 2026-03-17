@@ -24,12 +24,13 @@
     <header>
         <div class="logo-container">
     <img src="images/logo.png" alt="Logo Où est Bibi" class="logo">
-    <h1>Où est Bibi ?</h1>
 </div>
             <div class="header-info">
-                <span class="player-name">Joueur: <strong id="displayNickname"></strong></span>
-                <button id="changeNicknameBtn" class="btn-secondary">Changer de pseudo</button>
-                <a href="admin.html" class="btn-admin">Admin</a>
+                <span class="player-name">
+                    Joueur : <strong id="displayNickname"></strong>
+                    <i id="changeNicknameBtn" class="fas fa-pen edit-nickname-btn"></i>
+                    <i id="toggleThemeBtn" class="fas fa-moon theme-toggle-btn" title="Mode sombre" style="margin-left: 10px;"></i>
+                </span>
             </div>
         </div>
     </header>
@@ -38,7 +39,7 @@
     <div class="container main-container">
         
         <!-- Timer et Instructions -->
-        <div class="game-info">
+        <div id="gameInfoSection" class="game-info">
             <div class="timer-section">
                 <i class="fas fa-stopwatch"></i>
                 <span id="timer">00:00</span>
@@ -48,13 +49,60 @@
             </div>
         </div>
 
-        <!-- Publicité 1 -->
-        <div class="ad-space ad-horizontal">
-            <p>📢 Espace publicitaire</p>
+        <!-- Message: Déjà joué aujourd'hui -->
+        <div id="alreadyPlayedInfo" class="already-played-full" style="display: none;">
+            <!-- Section message sans rang -->
+            <div class="already-played-message-box">
+                <i class="fas fa-check-circle"></i>
+                <p class="already-played-title">Vous avez déjà trouvé Bibi aujourd'hui!</p>
+                <p class="already-played-subtitle">Revenez demain pour un nouveau défi!</p>
+            </div>
+
+            <!-- Section Top 3 + Info rang -->
+            <div class="already-played-content">
+                <div class="already-played-left">
+                    <div class="leaderboard already-played-leaderboard">
+                        <h3>🏆 Top 3 du Jour</h3>
+                        <div id="leaderboardListAlreadyPlayed" class="leaderboard-list">
+                            <p class="loading-text">Chargement...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Classement général -->
+            <div id="globalLeaderboardSection" class="global-leaderboard-section" style="display: none;">
+                <h3>🌟 Classement Général - Tous les Joueurs</h3>
+                <div id="globalLeaderboardList" class="leaderboard-list">
+                    <p class="loading-text">Chargement...</p>
+                </div>
+            </div>
+
+            <!-- Bouton pour basculer entre top du jour et classement général -->
+            <div class="leaderboard-toggle">
+                <button id="toggleLeaderboardBtn" class="btn-toggle">Voir le classement général</button>
+            </div>
         </div>
 
         <!-- Game Section -->
         <div class="game-section">
+            <!-- Top Section: Top 3 et Publicité côte à côte -->
+            <div class="top-section">
+                <!-- Classement à gauche -->
+                <div class="leaderboard-box">
+                    <h3>🏆 Top 3 du Jour</h3>
+                    <div id="leaderboardList" class="leaderboard-list">
+                        <p class="loading-text">Chargement...</p>
+                    </div>
+                </div>
+
+                <!-- Publicité à droite -->
+                <div class="ad-space ad-top">
+                    <p>📢 Espace publicitaire</p>
+                </div>
+            </div>
+
+            <!-- Image -->
             <div class="game-container">
                 <div class="zoom-controls">
                     <button id="zoomInBtn" class="btn-zoom"><i class="fas fa-plus"></i></button>
@@ -76,33 +124,12 @@
                     <i class="fas fa-calendar-times"></i>
                     <p>Aucun défi disponible pour aujourd'hui. Revenez demain!</p>
                 </div>
-
-                <div id="alreadyPlayedMessage" class="already-played-message" style="display: none;">
-                    <i class="fas fa-check-circle"></i>
-                    <p>Vous avez déjà trouvé Bibi aujourd'hui!</p>
-                    <p>Votre classement: <strong id="yourRank"></strong></p>
-                    <p>Revenez demain pour un nouveau défi!</p>
-                </div>
             </div>
 
-            <!-- Sidebar avec Classement et Pub -->
-            <aside class="sidebar">
-  <div class="sidebar-row">
-    <!-- Pub à gauche -->
-    <div class="ad-space ad-vertical">
-      <p>📢 Espace publicitaire</p>
-    </div>
-
-    <!-- Classement à droite -->
-    <div class="leaderboard">
-      <h3>🏆 Top 5 du Jour</h3>
-      <div id="leaderboardList" class="leaderboard-list">
-        <p class="loading-text">Chargement...</p>
-      </div>
-    </div>
-  </div>
-</aside>
-
+            <!-- Publicité en bannière sous l'image -->
+            <div class="ad-space ad-horizontal">
+                <p>📢 Espace publicitaire</p>
+            </div>
         </div>
     </div>
 
@@ -117,7 +144,25 @@
             <p class="victory-time">Temps: <strong id="victoryTime"></strong></p>
             <p class="victory-rank">Vous êtes <strong id="victoryRank"></strong>!</p>
             <button id="closeVictoryBtn" class="btn-primary">Voir le classement</button>
-            <button id="shareScoreBtn" class="btn-secondary">Partager</button>
+            <div class="share-buttons">
+                <button id="shareBtn" class="btn-secondary">📤 Partager</button>
+            </div>
+
+            <!-- Menu de partage -->
+            <div id="shareMenu" class="share-menu" style="display: none;">
+                <button id="shareTwitter" class="share-option" data-platform="twitter">
+                    <i class="fab fa-twitter"></i> Twitter
+                </button>
+                <button id="shareTiktok" class="share-option" data-platform="tiktok">
+                    <i class="fab fa-tiktok"></i> TikTok
+                </button>
+                <button id="shareInstagram" class="share-option" data-platform="instagram">
+                    <i class="fab fa-instagram"></i> Instagram Story
+                </button>
+                <button id="shareFacebook" class="share-option" data-platform="facebook">
+                    <i class="fab fa-facebook"></i> Facebook
+                </button>
+            </div>
 
         </div>
     </div>
@@ -125,7 +170,8 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>&copy; 2026 Où est Bibi? - Un nouveau défi chaque jour!</p>
+            <p>&copy; 2026 Où est Bibi? - Un nouveau défi chaque vendredi!</p>
+            <a href="admin.html" class="admin-link" title="Administration">admin</a>
         </div>
     </footer>
 

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset - Où est Bibi?</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+        }
+        .reset-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .btn {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        .btn-reset {
+            background: #FF6B6B;
+            color: white;
+        }
+        .btn-reset:hover {
+            background: #FF5252;
+            transform: scale(1.05);
+        }
+        .btn-back {
+            background: #667eea;
+            color: white;
+        }
+        .btn-back:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+        .status {
+            margin-top: 20px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        .success {
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="reset-container">
+        <h1>🔄 Réinitialiser le jeu</h1>
+        <p>Cliquez sur le bouton ci-dessous pour supprimer toutes vos données de jeu et tout recommencer à zéro.</p>
+        <button class="btn btn-reset" onclick="resetGame()">Réinitialiser</button>
+        <button class="btn btn-back" onclick="goBack()">Retour</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        function resetGame() {
+            // Supprimer uniquement les scores et les flags de jeu joué
+            const keysToKeep = ['challenges', 'ouEstBibiTheme'];
+            const allKeys = Object.keys(localStorage);
+            
+            allKeys.forEach(key => {
+                if (!keysToKeep.includes(key)) {
+                    localStorage.removeItem(key);
+                }
+            });
+            
+            document.getElementById('status').innerHTML = '<p class="success">✓ Jeu réinitialisé! Redirection...</p>';
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

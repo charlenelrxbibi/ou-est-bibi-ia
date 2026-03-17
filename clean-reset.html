@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Complet - Où est Bibi?</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        button {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Réinitialisation en cours...</h1>
+        <p>Nettoyage complet de la base de données...</p>
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        function perform() {
+            const status = document.getElementById('status');
+
+            // 1. Vider localStorage
+            localStorage.clear();
+            status.innerHTML += '<p>✅ localStorage vidé</p>';
+
+            // 2. Créer défi pour aujourd'hui
+            const today = new Date().toISOString().split('T')[0];
+            const defaultChallenge = {
+                id: Date.now().toString(),
+                date: today,
+                image_url: 'images/27_fevrier.png',
+                bibi_x: 50,
+                bibi_y: 50,
+                active: true
+            };
+            localStorage.setItem('challenges', JSON.stringify([defaultChallenge]));
+            status.innerHTML += `<p>✅ Défi créé pour ${today}</p>`;
+
+            // 3. Vérifier localStorage
+            const challenges = JSON.parse(localStorage.getItem('challenges') || '[]');
+            if (challenges.length > 0) {
+                status.innerHTML += `<p class="success">✅ SUCCÈS! ${challenges.length} défi disponible</p>`;
+                
+                // 4. Rediriger après 2 secondes
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            } else {
+                status.innerHTML += '<p style="color: red;">❌ ERREUR!</p>';
+            }
+        }
+
+        // Lancer la réinitialisation immédiatement
+        perform();
+    </script>
+</body>
+</html>

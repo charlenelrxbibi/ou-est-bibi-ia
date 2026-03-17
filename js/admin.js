@@ -1,10 +1,14 @@
 // Configuration
 const ADMIN_PASSWORD = 'Bibi2026@'; // Mot de passe par défaut
 const API_BASE = 'tables';
-const supabaseClient = window.supabaseClient.createClient(
-    windows.SUPABASE_URL, 
-    windows.SUPABASE_ANON_KEY
-);
+const USE_LOCAL_STORAGE = true; // Utiliser localStorage au lieu de Supabase
+let supabaseClient = null;
+
+try {
+    supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+} catch (e) {
+    console.warn('Supabase non disponible, utilisation de localStorage', e);
+}
 
 // Variables globales
 let isAuthenticated = false;
@@ -62,7 +66,57 @@ function setupEventListeners() {
     addChallengeForm.addEventListener('submit', handleAddChallenge);
 }
 
-// Authentification
+// ====== FONCTIONS LOCALSTORAGE ======
+function getChallengesFromStorage() {
+    const data = localStorage.getItem('challenges');
+    return data ? JSON.parse(data) : [];
+}
+
+function saveChallengeToStorage(challenge) {
+    try {
+        console.log('saveChallengeToStorage: Début');
+        const challenges = getChallengesFromStorage();
+        console.log('Défis actuels:', challenges.length);
+        
+        challenge.id = Date.now().toString(); // ID simple basé sur le timestamp
+        challenges.push(challenge);
+        const dataStr = JSON.stringify(challenges);
+        
+        // Vérifier la taille (localStorage limite à ~5-10MB)
+        const sizeInMB = new Blob([dataStr]).size / (1024 * 1024);
+        console.log('Taille totale des données:', sizeInMB.toFixed(2), 'MB');
+        
+        if (sizeInMB > 8) {
+            throw new Error(`Les données sont trop volumineux (${sizeInMB.toFixed(2)}MB). Veuillez utiliser des images plus petites.`);
+        }
+        
+        localStorage.setItem('challenges', dataStr);
+        console.log('Données sauvegardées dans localStorage');
+        return challenge;
+    } catch (error) {
+        if (error.name === 'QuotaExceededError' || error.message.includes('volumineux')) {
+            throw new Error('Erreur: L\'image est trop grande pour être sauvegardée. Veuillez utiliser une image plus petite.');
+        }
+        throw error;
+    }
+}
+
+function deleteChallengeFromStorage(challengeId) {
+    let challenges = getChallengesFromStorage();
+    challenges = challenges.filter(c => c.id !== challengeId);
+    localStorage.setItem('challenges', JSON.stringify(challenges));
+}
+
+function updateChallengeInStorage(challengeId, updates) {
+    let challenges = getChallengesFromStorage();
+    const challenge = challenges.find(c => c.id === challengeId);
+    if (challenge) {
+        Object.assign(challenge, updates);
+        localStorage.setItem('challenges', JSON.stringify(challenges));
+    }
+}
+
+// ====== AUTHENTIFICATION ======
 function checkAuthentication() {
     const auth = sessionStorage.getItem('ouEstBibiAdmin');
     if (auth === 'true') {
@@ -106,6 +160,73 @@ function setDefaultDate() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const dateStr = tomorrow.toISOString().split('T')[0];
     challengeDate.value = dateStr;
+}
+
+// Utilitaires pour les images
+async function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            console.log('fileToDataUrl: Conversion réussie');
+            resolve(e.target.result);
+        };
+        reader.onerror = (e) => {
+            console.error('fileToDataUrl: Erreur');
+            reject(new Error('Impossible de lire le fichier'));
+        };
+        console.log('fileToDataUrl: Démarrage de la lecture');
+        reader.readAsDataURL(file);
+    });
+}
+
+async function compressImage(file, maxWidth = 400, maxHeight = 300, quality = 0.3) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                try {
+                    console.log('compressImage: Image chargée, dimensions originales:', img.width, 'x', img.height);
+                    
+                    const canvas = document.createElement('canvas');
+                    let { width, height } = img;
+                    
+                    // Redimensionner si nécessaire
+                    if (width > maxWidth || height > maxHeight) {
+                        const ratio = Math.min(maxWidth / width, maxHeight / height);
+                        width = Math.round(width * ratio);
+                        height = Math.round(height * ratio);
+                        console.log('compressImage: Redimensionnement à', width, 'x', height);
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Convertir en blob compressé avec qualité très basse
+                    canvas.toBlob((blob) => {
+                        console.log('compressImage: Blob créé, taille:', blob.size, 'bytes');
+                        resolve(blob);
+                    }, 'image/jpeg', quality);
+                } catch (error) {
+                    console.error('compressImage: Erreur lors de la compression', error);
+                    reject(error);
+                }
+            };
+            img.onerror = () => {
+                console.error('compressImage: Erreur lors du chargement de l\'image');
+                reject(new Error('Impossible de charger l\'image'));
+            };
+            img.src = e.target.result;
+        };
+        reader.onerror = () => {
+            console.error('compressImage: Erreur lors de la lecture du fichier');
+            reject(new Error('Impossible de lire le fichier'));
+        };
+        console.log('compressImage: Démarrage de la compression, taille fichier:', file.size, 'bytes');
+        reader.readAsDataURL(file);
+    });
 }
 
 // Chargement de l'image
@@ -216,9 +337,17 @@ function handleImageClick(e) {
 async function handleAddChallenge(e) {
     e.preventDefault();
     
-    // Validation
-    if (!imageUrl.value.trim()) {
-        alert('Veuillez entrer une URL d\'image');
+    console.log('handleAddChallenge: Début');
+    
+    // Validation : vérifier qu'on a soit une URL soit un fichier
+    const hasUrl = imageUrl.value.trim();
+    const hasFile = imageFile?.files?.[0];
+    
+    console.log('hasUrl:', hasUrl ? 'oui' : 'non');
+    console.log('hasFile:', hasFile ? 'oui' : 'non');
+    
+    if (!hasUrl && !hasFile) {
+        alert('Veuillez entrer une URL d\'image ou uploader un fichier');
         return;
     }
     
@@ -233,44 +362,42 @@ async function handleAddChallenge(e) {
     }
     
     try {
-        // Créer le défi
-       async function uploadToSupabaseStorage(file) {
-const ext = file.name.split('.').pop();
-const fileName = `${Date.now()}-${Math.random().toString(16).slice(2)}.${ext}`;
-const filePath = `daily/${fileName}`;
-
-const { error: uploadError } = await supabase
-.storage
-.from('challenge-images')
-.upload(filePath, file, { upsert: false });
-
-if (uploadError) throw uploadError;
-
-const { data } = supabase
-.storage
-.from('challenge-images')
-.getPublicUrl(filePath);
-
-return data.publicUrl;
-}
+        let finalImageUrl = hasUrl;
         
-        const response = await fetch(`${API_BASE}/challenges`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(challengeData)
-        });
-        
-        if (response.ok) {
-            alert('Défi ajouté avec succès!');
-            resetForm();
-            loadChallenges();
-            loadStatistics();
-        } else {
-            alert('Erreur lors de l\'ajout du défi');
+        // Si on a un fichier, le compresser et convertir en Data URL (base64)
+        if (hasFile) {
+            console.log('Compression de l\'image...');
+            // Compresser l'image avant de la convertir
+            const compressedImage = await compressImage(hasFile);
+            console.log('Compression réussie, taille:', compressedImage.size, 'bytes');
+            
+            console.log('Conversion en base64...');
+            finalImageUrl = await fileToDataUrl(compressedImage);
+            console.log('Conversion réussie, longueur:', finalImageUrl.length, 'chars');
         }
+        
+        // Créer l'objet défi
+        const challengeData = {
+            date: challengeDate.value,
+            image_url: finalImageUrl,
+            bibi_x: bibiPosition.x,
+            bibi_y: bibiPosition.y,
+            active: activeCheckbox?.checked || true
+        };
+        
+        console.log('Sauvegarde du défi:', challengeData.date);
+        // Sauvegarder dans localStorage
+        saveChallengeToStorage(challengeData);
+        console.log('Défi sauvegardé avec succès');
+        
+        alert('Défi ajouté avec succès!');
+        resetForm();
+        loadChallenges();
+        loadStatistics();
     } catch (error) {
-        console.error('Erreur:', error);
-        alert('Erreur lors de l\'ajout du défi');
+        console.error('Erreur complète:', error);
+        console.error('Stack:', error.stack);
+        alert('Erreur lors de l\'ajout du défi: ' + error.message);
     }
 }
 
@@ -289,22 +416,23 @@ function resetForm() {
 }
 
 // Chargement des défis
-async function loadChallenges() {
+function loadChallenges() {
     try {
-        const response = await fetch(`${API_BASE}/challenges?limit=100&sort=-date`);
-        const result = await response.json();
+        console.log('loadChallenges: Début');
+        // Charger depuis localStorage
+        let challenges = getChallengesFromStorage();
+        console.log('Défis chargés:', challenges.length);
         
-        if (!result.data || result.data.length === 0) {
+        // Trier par date (plus récent en premier)
+        challenges.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        if (!challenges || challenges.length === 0) {
+            console.log('Aucun défi trouvé');
             challengesList.innerHTML = '<p class="loading-text">Aucun défi créé</p>';
             return;
         }
         
-        // Trier par date (plus récent en premier)
-        const challenges = result.data.sort((a, b) => {
-            return new Date(b.date) - new Date(a.date);
-        });
-        
-        challengesList.innerHTML = challenges.map(challenge => {
+        challengesList.innerHTML = challenges.map((challenge) => {
             const dateObj = new Date(challenge.date);
             const dateStr = dateObj.toLocaleDateString('fr-FR', {
                 weekday: 'long',
@@ -343,19 +471,10 @@ async function loadChallenges() {
 }
 
 // Toggle status d'un défi
-async function toggleChallengeStatus(challengeId, newStatus) {
+function toggleChallengeStatus(challengeId, newStatus) {
     try {
-        const response = await fetch(`${API_BASE}/challenges/${challengeId}`, {
-            method: 'PATCH',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ active: newStatus })
-        });
-        
-        if (response.ok) {
-            loadChallenges();
-        } else {
-            alert('Erreur lors de la modification du statut');
-        }
+        updateChallengeInStorage(challengeId, { active: newStatus });
+        loadChallenges();
     } catch (error) {
         console.error('Erreur:', error);
         alert('Erreur lors de la modification du statut');
@@ -363,23 +482,16 @@ async function toggleChallengeStatus(challengeId, newStatus) {
 }
 
 // Suppression d'un défi
-async function deleteChallenge(challengeId) {
+function deleteChallenge(challengeId) {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce défi?')) {
         return;
     }
     
     try {
-        const response = await fetch(`${API_BASE}/challenges/${challengeId}`, {
-            method: 'DELETE'
-        });
-        
-        if (response.ok || response.status === 204) {
-            alert('Défi supprimé');
-            loadChallenges();
-            loadStatistics();
-        } else {
-            alert('Erreur lors de la suppression');
-        }
+        deleteChallengeFromStorage(challengeId);
+        alert('Défi supprimé');
+        loadChallenges();
+        loadStatistics();
     } catch (error) {
         console.error('Erreur:', error);
         alert('Erreur lors de la suppression');
@@ -387,21 +499,15 @@ async function deleteChallenge(challengeId) {
 }
 
 // Chargement des statistiques
-async function loadStatistics() {
+function loadStatistics() {
     try {
         // Nombre de défis
-        const challengesResponse = await fetch(`${API_BASE}/challenges?limit=1000`);
-        const challengesResult = await challengesResponse.json();
-        totalChallenges.textContent = challengesResult.total || challengesResult.data.length || 0;
+        const challenges = getChallengesFromStorage();
+        totalChallenges.textContent = challenges?.length || 0;
         
-        // Nombre de scores
-        const scoresResponse = await fetch(`${API_BASE}/scores?limit=1000`);
-        const scoresResult = await scoresResponse.json();
-        totalScores.textContent = scoresResult.total || scoresResult.data.length || 0;
-        
-        // Nombre de joueurs uniques
-        const uniquePlayers = new Set(scoresResult.data.map(score => score.player_name));
-        totalPlayers.textContent = uniquePlayers.size;
+        // Note: Les scores et joueurs seraient chargés depuis localStorage aussi si le jeu utilise localStorage
+        totalScores.textContent = '0';
+        totalPlayers.textContent = '0';
         
     } catch (error) {
         console.error('Erreur lors du chargement des statistiques:', error);

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réparation - Où est Bibi?</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏳ Réparation en cours...</h1>
+        <p>Ajout du défi pour aujourd'hui...</p>
+    </div>
+
+    <script>
+        // Récupère les défis actuels
+        const challenges = JSON.parse(localStorage.getItem('challenges') || '[]');
+        
+        // Ajoute le défi manquant pour 2026-03-09
+        const newChallenge = {
+            id: Date.now().toString(),
+            date: '2026-03-09',
+            image_url: 'images/27_fevrier.png',
+            bibi_x: 50,
+            bibi_y: 50,
+            active: true
+        };
+        
+        challenges.push(newChallenge);
+        localStorage.setItem('challenges', JSON.stringify(challenges));
+        
+        console.log('Défi ajouté pour 2026-03-09');
+        
+        // Redirection après 1 seconde
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1000);
+    </script>
+</body>
+</html>
